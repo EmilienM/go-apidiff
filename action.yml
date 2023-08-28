@@ -61,11 +61,11 @@ runs:
         set -x
         GOPATH=$(go env GOPATH)
         set +e
-        OUTPUT=$($GOPATH/bin/go-apidiff ${{ inputs.base-ref }} --compare-imports=${{ inputs.compare-imports }} --print-compatible=${{ inputs.print-compatible }} --repo-path=${{ inputs.repo-path }})
-        GOAPIDIFF_RC=$?
+        $GOPATH/bin/go-apidiff ${{ inputs.base-ref }} --compare-imports=${{ inputs.compare-imports }} --print-compatible=${{ inputs.print-compatible }} --repo-path=${{ inputs.repo-path }} |& tee /tmp/output.txt
+        GOAPIDIFF_RC=${PIPESTATUS[0]}
         set -e
         if [ $GOAPIDIFF_RC -eq 0 ]; then
-          if [ -z "$OUTPUT" ]; then
+          if [ ! -s /tmp/output.txt ]; then
             echo "semver-type=patch" >> $GITHUB_OUTPUT
             exit 0
           fi
